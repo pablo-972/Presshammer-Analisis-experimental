@@ -279,7 +279,14 @@ int do_samsung_utrr(uintptr_t target, int no_aggr_acts, int no_reads, int victim
         {
             asm volatile ("lfence");
 
-            clock_gettime(CLOCK_REALTIME, &t1);
+            #ifdef USE_RDTSC
+            asm volatile ("RDTSCP\n\t" 
+                    "mov %%edx, %0\n\t" 
+                    "mov %%eax, %1\n\t": "=r" (cycles_high), "=r" (cycles_low):: 
+                    "%rax", "%rbx", "%rcx", "%rdx");
+            #else
+                clock_gettime(CLOCK_REALTIME, &t1);
+            #endif
 
 
             // Probar tiempos de <no_intentos> y numero medio de ciclos 
@@ -294,9 +301,19 @@ int do_samsung_utrr(uintptr_t target, int no_aggr_acts, int no_reads, int victim
 
             // Para inmediatamente despues de deducir que se ha producido un REF recientemente
             // i.e., it took four row conflicts more than 1K cycles to execute
-            clock_gettime(CLOCK_REALTIME, &t2);
-            if (t2.tv_nsec - t1.tv_nsec > 450) // 450ns ~= 1K TSC cycles
+            #ifdef USE_RDTSC
+            asm volatile ("RDTSCP\n\t" 
+                    "mov %%edx, %0\n\t" 
+                    "mov %%eax, %1\n\t": "=r" (cycles_high1), "=r" (cycles_low1):: 
+                    "%rax", "%rbx", "%rcx", "%rdx");
+                    
+            if (cycles_low1-cycles_low > 1000)
                 break;
+            #else
+                clock_gettime(CLOCK_REALTIME, &t2);
+                if (t2.tv_nsec - t1.tv_nsec > 450) // 450ns ~= 1K TSC cycles
+                    break;
+            #endif
         }
 
 
@@ -346,7 +363,15 @@ int do_samsung_utrr(uintptr_t target, int no_aggr_acts, int no_reads, int victim
             while (true) 
             {
                 asm volatile ("lfence");
-                clock_gettime(CLOCK_REALTIME, &t1);
+                
+                #ifdef USE_RDTSC
+                asm volatile ("RDTSCP\n\t" 
+                        "mov %%edx, %0\n\t" 
+                        "mov %%eax, %1\n\t": "=r" (cycles_high), "=r" (cycles_low):: 
+                        "%rax", "%rbx", "%rcx", "%rdx");
+                #else
+                    clock_gettime(CLOCK_REALTIME, &t1);
+                #endif
 
 
                 // Probar tiempos de <no_intentos> y numero medio de ciclos 
@@ -360,9 +385,19 @@ int do_samsung_utrr(uintptr_t target, int no_aggr_acts, int no_reads, int victim
 
                 // Para inmediatamente despues de deducir que se ha producido un REF recientemente
                 // i.e., it took four row conflicts more than 1K cycles to execute
-                clock_gettime(CLOCK_REALTIME, &t2);
-                if (t2.tv_nsec - t1.tv_nsec > 450) // 450ns ~= 1K TSC cycles
+                #ifdef USE_RDTSC
+                asm volatile("RDTSCP\n\t" 
+                        "mov %%edx, %0\n\t" 
+                        "mov %%eax, %1\n\t": "=r" (cycles_high1), "=r" (cycles_low1)::
+                        "%rax", "%rbx", "%rcx", "%rdx");
+
+                if (cycles_low1-cycles_low > 1000 && cycles_low1-cycles_low < 1500)
                     break;
+                #else
+                    clock_gettime(CLOCK_REALTIME, &t2);
+                    if (t2.tv_nsec - t1.tv_nsec > 450) // 450ns ~= 1K TSC cycles
+                        break;
+                #endif
 
             }
 
