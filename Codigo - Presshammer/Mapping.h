@@ -10,7 +10,7 @@
 #define RANKS(x) ((x) << (8UL * 1UL))
 #define BANKS(x) ((x) << (8UL * 0UL))
 
-static const int MTX_SIZE = 30;
+#define MTX_SIZE 30
 
 struct MemConfiguration {
   int IDENTIFIER;
