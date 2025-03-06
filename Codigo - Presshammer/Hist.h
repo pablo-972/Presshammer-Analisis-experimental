@@ -40,4 +40,4 @@
 
         //Método para limpiar todos los valores almacenados
         void clear_all_values();
-  }
+  };
