@@ -1,5 +1,5 @@
 CXX := g++
-CFLAGS := -std=c++11 -g -O3 -DTIME_GLOBAL
+CFLAGS := -std=c++11 -g -O3 -DTIME_GLOBAL -DUSE_RDTSC
 MAINSOURCES := main.cpp Hist.cpp Mapping.cpp
 MAINOBJS := $(MAINSOURCES:.cpp=.o)
 
