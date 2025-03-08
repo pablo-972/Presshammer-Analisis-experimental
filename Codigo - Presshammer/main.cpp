@@ -3,7 +3,7 @@
 //==========================================================================
 #include <iostream>
 #include <fstream>
-#include <immintrin.h> 
+#include <immintrin.h> //Contiene instrucciones para procesadores Intel
 #include <random>
 #include <algorithm>
 #include <stdio.h>
@@ -11,7 +11,7 @@
 #include <inttypes.h>
 #include <utility>
 #include <linux/kernel-page-flags.h>
-#include <fcntl.h> 
+#include <fcntl.h> // Biblioteca POSIX del lenguaje de programacion C que contiene instrucciones para el control de archivos
 #include <bits/stdc++.h>
 #include <sched.h>
 #include <sys/resource.h>
@@ -704,7 +704,7 @@ int main(int argc, char *argv[])
         {0, 0, 0, 0}
     };
 
-    //Se comprueba que se le pasen los argumentos necesarios para ejecutar
+    // Se comprueba que se le pasen los argumentos necesarios para ejecutar
     while ((o = getopt_long(argc, argv, "vn:", long_options, &index)) != -1)
     {
         switch (o)
