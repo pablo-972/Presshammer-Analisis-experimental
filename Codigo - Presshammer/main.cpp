@@ -306,10 +306,8 @@ int do_samsung_utrr(uintptr_t target, int no_aggr_acts, int no_reads, int victim
         for (int j = 0 ; j < iteration_per_victim ; j++)
         {
             asm volatile("lfence");
-
-            #ifdef TIME_GLOBAL // Para entrar en este ifdef hay que pasar este parametro a la hora de compilar: -DTIME_GLOBAL
-                clock_gettime(CLOCK_REALTIME, &tglob1);
-            #endif
+ 
+            clock_gettime(CLOCK_REALTIME, &tglob1);
 
             // Se activa tantas veces como no_aggr_acts 
             for (int k = 0 ; k < no_aggr_acts ; k++)
@@ -366,10 +364,9 @@ int do_samsung_utrr(uintptr_t target, int no_aggr_acts, int no_reads, int victim
 
             }
 
-            #ifdef TIME_GLOBAL  
-                clock_gettime(CLOCK_REALTIME, &tglob2);
-                record[j] = tglob2.tv_nsec - tglob1.tv_nsec;
-            #endif
+            clock_gettime(CLOCK_REALTIME, &tglob2);
+            record[j] = tglob2.tv_nsec - tglob1.tv_nsec;
+            
         } // ------------------ FIN PRESSHAMMER ------------------
 
         // ------------------ FIN.  ------------------
