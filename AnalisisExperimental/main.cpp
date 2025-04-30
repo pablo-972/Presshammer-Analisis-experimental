@@ -94,7 +94,7 @@ void experimentalAnalysis(bool isVerify, int numVictims){
         }
     }
     
-    std::cout << color::GREEN << "[+] " << color::RESET << " FINISHED " << std::endl;
+    std::cout << color::GREEN << "[+] " << color::RESET << "FINISHED!" << std::endl;
 
 }
 
