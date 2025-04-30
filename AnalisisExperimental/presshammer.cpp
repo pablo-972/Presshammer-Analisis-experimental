@@ -132,6 +132,7 @@ void aggrVirtualAddress(volatile unsigned long long *aggrArr[], Mapping &aggr1, 
     for (int j = 0 ; j < 128 ; j++){
         aggrArr[j*2 + 0] = (volatile unsigned long long *) (aggr1.toVirt()); // aggrArr[j*2 + 0] refers to the aggressor row 1
         aggrArr[j*2 + 1] = (volatile unsigned long long *) (aggr2.toVirt()); // aggrArr[j*2 + 1] refers to the aggressor row 2
+        aggr1.incrementColumnCb();
         aggr2.incrementColumnCb();
     }
 
@@ -218,10 +219,11 @@ void dummyBypassTrr(volatile unsigned long long *dummyArr[]){
     asm volatile ("mfence");
 }
 
-void presshammer(volatile unsigned long long *aggrArr[], int numAggrActs, int numReads, volatile unsigned long long *dummyArr[], volatile unsigned long long *syncArr[]){
+void doubleSidedPresshammer(volatile unsigned long long *aggrArr[], int numAggrActs, int numReads, volatile unsigned long long *dummyArr[], volatile unsigned long long *syncArr[]){
     // for each iteration, activate & read with the specified amount; and refresh again
     for (int i = 0; i < kIterationPerVictim; i++){
         asm volatile ("lfence");
+
 
         // calculate initial time of the attack
         clock_gettime(CLOCK_REALTIME, &tglob1);
@@ -243,19 +245,20 @@ void presshammer(volatile unsigned long long *aggrArr[], int numAggrActs, int nu
 
             for (int k = 0; k < numReads ; k++)
                 asm volatile("clflushopt (%0)" : : "r" (aggrArr[k*2 + 1]) : "memory");
-
-            // perform dummy accesses to bypass the TRR mechanism
-            dummyBypassTrr(dummyArr);
-
-            // ------------------ SYNCHRONIZE /w REF ------------------
-            synchronizeRef(syncArr);
-
-            // calculte final time of each access 
-            clock_gettime(CLOCK_REALTIME, &tglob2);
-
-            // save the record of the global time
-            record[j] = tglob2.tv_nsec - tglob1.tv_nsec;
+            
         }
+        // perform dummy accesses to bypass the TRR mechanism
+        dummyBypassTrr(dummyArr);
+
+        // ------------------ SYNCHRONIZE /w REF ------------------
+        synchronizeRef(syncArr);
+
+        // calculte final time of each access 
+        clock_gettime(CLOCK_REALTIME, &tglob2);
+
+        // save the record of the global time
+        record[i] = tglob2.tv_nsec - tglob1.tv_nsec;
+        
     }
 
     asm volatile("mfence");
@@ -279,11 +282,11 @@ int checkBitFlips(Mapping &victim, unsigned long long victimData){
 
 
 void showReport(Mapping &victim, int bitFlips, int i){
-    std::cout << "\n" << "----------" << color::GREEN << " Report " << color::RESET << "----------\n"
+    std::cout << "\n" << "----------" << color::GREEN << " Report " << color::RESET << "----------" << '\n'
                 << color::GREEN << "[+] " << color::RESET << "Victim: " << victim.getRow() << " done" << '\n'
                 << color::BLUE << "[*] " << color::RESET << "Median of time: " << record[kIterationPerVictim/2] << "ns" << '\n'
                 << color::BLUE << "[*] " << color::RESET << "Row: " << i << " with bit flip count " << bitFlips << '\n' 
-                << "--------------------------------" << '\n' << std::endl;
+                << '\n' << "--------------------------------" << '\n' << std::endl;
 }
 
 
@@ -343,7 +346,7 @@ int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, in
         std::cout << "\n" << "----------" << color::BLUE << " Sync && Dummies " << color::RESET << "----------\n" << std::endl;
         setupSync(victim, sync1, sync2);
         setupDummy(victim, dummyRows);
-        std::cout << "-------------------------------------" << '\n' << std::endl;
+        std::cout << "\n" << "-------------------------------------" << '\n' << std::endl;
 
         // initialize the data of the victim and surrounding rows with the checkerboard pattern
         setupDataRows(victim, aggr1, aggr2, dummyRows, 0x5555555555555555ULL);
@@ -363,7 +366,7 @@ int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, in
         synchronizeRef(syncArr);
 
         // ------------------ PRESSHAMMER (ROWHAMMER + ROWPRESS) ------------------
-        presshammer(aggrArr, numAggrActs, numReads, dummyArr, syncArr);
+        doubleSidedPresshammer(aggrArr, numAggrActs, numReads, dummyArr, syncArr);
 
         // accumulate the total number of bitflips with the given activation count & read number across all tested victim rows
         int bitFlips = checkBitFlips(victim, 0x5555555555555555ULL);

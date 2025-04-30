@@ -55,7 +55,7 @@ volatile char* allocateTargetMemory(){
     }
 
     volatile char *targetAddress = (volatile char*) mappedTargetAddress;
-    std::cout << color::BLUE << "[*] " << color::RESET << "Virtual direction at: " << std::hex << (uintptr_t) targetAddress << std::dec << std::endl;
+    std::cout << color::BLUE << "[*] " << color::RESET << "Virtual direction at: " << std::hex << (uintptr_t) targetAddress << std::dec << '\n' << std::endl;
 
     return targetAddress;
 }
@@ -72,7 +72,7 @@ void experimentalAnalysis(bool isVerify, int numVictims){
         verifytAggOn((uintptr_t) targetAddress);
 
     }else{
-        std::cout << color::BLUE << "[*] " << color::RESET << " STARTING PRESSHAMMER " << std::endl;
+        std::cout << color::BLUE << "[*] " << color::RESET << "STARTING PRESSHAMMER " << std::endl;
 
         // this array determines the number of reads to the aggressors. The higher the number of reads, the longer the row is kept open.
         int numReadsArr[10] = {1, 2, 4, 8, 16, 32, 48, 64, 80, 128}; 
