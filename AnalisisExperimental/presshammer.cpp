@@ -285,13 +285,22 @@ void showReport(Mapping &victim, int bitFlips, int i){
     std::cout << "\n" << "----------" << color::GREEN << " Report " << color::RESET << "----------" << '\n'
                 << color::GREEN << "[+] " << color::RESET << "Victim: " << victim.getRow() << " done" << '\n'
                 << color::BLUE << "[*] " << color::RESET << "Median of time: " << record[kIterationPerVictim/2] << "ns" << '\n'
-                << color::BLUE << "[*] " << color::RESET << "Row: " << i << " with bit flip count " << bitFlips << '\n' 
+                << color::BLUE << "[*] " << color::RESET << "Row: " <<  i << " with bit flip count " << bitFlips << '\n' 
                 << '\n' << "--------------------------------" << '\n' << std::endl;
+}
+
+
+void saveReport(std::ofstream &bitFlipsFile, Mapping &victim, int bitFlips){
+    bitFlipsFile << victim.getRow() << "," << record[kIterationPerVictim/2] << "," << bitFlips << std::endl;
 }
 
 
 __attribute__((optimize("unroll-loops")))
 int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, int numVictims){
+
+    std::ofstream bitFlipsFile;
+    bitFlipsFile.open("bitflips.txt");
+    bitFlipsFile << "row,median_of_time,bitflips" << std::endl;
 
     // see total number of rows
     std::cout << color::BLUE << "[*] " << color::RESET << "Number of total rows: " << kNumOfRows << std::endl;
@@ -377,6 +386,9 @@ int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, in
         
         //show report
         showReport(victim, bitFlips, i);
+
+        // save report
+        saveReport(bitFlipsFile, victim, bitFlips);
 
     }
 
