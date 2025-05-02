@@ -281,17 +281,19 @@ int checkBitFlips(Mapping &victim, unsigned long long victimData){
 }
 
 
-void showReport(Mapping &victim, int bitFlips, int i){
+void showReport(Mapping &victim, int bitFlips, int i, int numAggrActs, int numReads){
     std::cout << "\n" << "----------" << color::GREEN << " Report " << color::RESET << "----------" << '\n'
                 << color::GREEN << "[+] " << color::RESET << "Victim: " << victim.getRow() << " done" << '\n'
+                << color::BLUE << "[*] " << color::RESET << "Aggressors activations: " << numAggrActs << '\n' 
+                << color::BLUE << "[*] " << color::RESET << "Reads: " << numReads << '\n'
                 << color::BLUE << "[*] " << color::RESET << "Median of time: " << record[kIterationPerVictim/2] << "ns" << '\n'
                 << color::BLUE << "[*] " << color::RESET << "Row: " <<  i << " with bit flip count " << bitFlips << '\n' 
                 << '\n' << "--------------------------------" << '\n' << std::endl;
 }
 
 
-void saveReport(std::ofstream &bitFlipsFile, Mapping &victim, int bitFlips){
-    bitFlipsFile << victim.getRow() << "," << record[kIterationPerVictim/2] << "," << bitFlips << std::endl;
+void saveReport(std::ofstream &bitFlipsFile, Mapping &victim, int bitFlips, int numAggrActs, int numReads){
+    bitFlipsFile << victim.getRow() << "," << numAggrActs << "," << numReads << "," << record[kIterationPerVictim/2] << "," << bitFlips << std::endl;
 }
 
 
@@ -300,7 +302,7 @@ int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, in
 
     std::ofstream bitFlipsFile;
     bitFlipsFile.open("bitflips.txt");
-    bitFlipsFile << "row,median_of_time,bitflips" << std::endl;
+    bitFlipsFile << "row,aggressors_activations,reads,median_of_time,bitflips" << std::endl;
 
     // see total number of rows
     std::cout << color::BLUE << "[*] " << color::RESET << "Number of total rows: " << kNumOfRows << std::endl;
@@ -385,10 +387,10 @@ int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, in
         std::sort(record.begin(), record.end());
         
         //show report
-        showReport(victim, bitFlips, i);
+        showReport(victim, bitFlips, i, numAggrActs, numReads);
 
         // save report
-        saveReport(bitFlipsFile, victim, bitFlips);
+        saveReport(bitFlipsFile, victim, bitFlips, numAggrActs, numReads);
 
     }
 

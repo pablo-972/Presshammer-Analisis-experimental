@@ -1,0 +1,5 @@
+row,aggressors_activations,reads,median_of_time,bitflips
+14000,4,1,42969,0
+14001,4,1,35105,0
+14002,4,1,44990,0
+14003,4,1,28001,0
