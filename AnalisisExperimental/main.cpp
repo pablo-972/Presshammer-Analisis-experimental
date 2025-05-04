@@ -65,11 +65,6 @@ volatile char* allocateTargetMemory(){
 void experimentalAnalysis(bool isVerify, int numVictims){
     std::cout << color::GREEN << "[+] " << color::RESET << "STARTING ATTACK " << std::endl;
 
-    // file to save bitflips records
-    std::ofstream bitFlipsFile;
-    bitFlipsFile.open("bitflips.txt");
-    bitFlipsFile << "row,aggressors_activations,reads,median_of_time,bitflips" << std::endl;
-    
     volatile char *targetAddress = allocateTargetMemory();
 
     if(isVerify){
@@ -78,6 +73,11 @@ void experimentalAnalysis(bool isVerify, int numVictims){
 
     }else{
         std::cout << color::BLUE << "[*] " << color::RESET << "STARTING PRESSHAMMER " << std::endl;
+
+        // file to save bitflips records
+        std::ofstream bitFlipsFile;
+        bitFlipsFile.open("bitflips.txt");
+        bitFlipsFile << "row,aggressors_activations,reads,median_of_time,bitflips" << std::endl;
 
         // this array determines the number of reads to the aggressors. The higher the number of reads, the longer the row is kept open.
         int numReadsArr[10] = {1, 2, 4, 8, 16, 32, 48, 64, 80, 128}; 
