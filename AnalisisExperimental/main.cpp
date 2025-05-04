@@ -64,10 +64,15 @@ volatile char* allocateTargetMemory(){
 
 void experimentalAnalysis(bool isVerify, int numVictims){
     std::cout << color::GREEN << "[+] " << color::RESET << "STARTING ATTACK " << std::endl;
+
+    // file to save bitflips records
+    std::ofstream bitFlipsFile;
+    bitFlipsFile.open("bitflips.txt");
+    bitFlipsFile << "row,aggressors_activations,reads,median_of_time,bitflips" << std::endl;
     
     volatile char *targetAddress = allocateTargetMemory();
 
-    if (isVerify){
+    if(isVerify){
         std::cout << color::BLUE << "[*] " << color::RESET << "STARTING VERIFY tAggON " << std::endl;
         verifytAggOn((uintptr_t) targetAddress);
 
@@ -77,8 +82,8 @@ void experimentalAnalysis(bool isVerify, int numVictims){
         // this array determines the number of reads to the aggressors. The higher the number of reads, the longer the row is kept open.
         int numReadsArr[10] = {1, 2, 4, 8, 16, 32, 48, 64, 80, 128}; 
 
-        // this array determines the index of no_reads_arr up to which that much read count can be fit into a refresh window with the given activation count
-        // e.g., for activation count 3, we can perform number of reads upto no_reads_arr[experiment_counts[4-3]] = no_reads_arr[9] = 80 (not including)
+        // this array determines the index of numReadsArr up to which that much read count can be fit into a refresh window with the given activation count
+        // e.g., for activation count 3, we can perform number of reads upto numReadsArr[experimentCounts[4-3]] = numReadsArr[9] = 80 (not including)
         int experimentCounts[4] = {7, 9, 10, 10}; 
         
         // activate aggressors this many times
@@ -88,7 +93,7 @@ void experimentalAnalysis(bool isVerify, int numVictims){
             for (int j = 0; j < experimentCounts[4-i]; j++){ 
 
                 std::cout << color::BLUE << "[*] " << color::RESET << "Experiment with number of activations: " << i << " and number of reads: " << numReadsArr[j] << std::endl;
-                int totalBitFlips = doubleSidedAttack((uintptr_t) targetAddress, i, numReadsArr[j], numVictims);
+                int totalBitFlips = doubleSidedAttack((uintptr_t) targetAddress, i, numReadsArr[j], numVictims, bitFlipsFile);
                 std::cout << color::GREEN << "[+] " << color::RESET << " Total Bit Flips: " << totalBitFlips << std::endl;
             }
         }
@@ -107,8 +112,7 @@ int main(int argc, char *argv[]){
     int arguments;
 
     int numVictims = 1500;  // number of victim rows to hammer
-    bool isVerify = false;  
-    bool isDoubleSided = false;
+    bool isVerify = false;  // verify row access time
 
     
     static struct option long_options[] = {

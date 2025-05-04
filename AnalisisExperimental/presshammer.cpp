@@ -24,10 +24,9 @@ struct timespec t1, t2, tglob1, tglob2;
 std::vector<unsigned long long> record; 
 
 // Comprobador de filas del estilo con el offset+numvictims que vaya incrementando de 1 en 1 y acceder a la fila, en el momento que de exception fault pues hasta ahí llega y esa fila es crítica --> capturas señal y listo
-// guardar en un fichero los registros de las filas / tiempo y bitflips
+
 
 void setupAggr(Mapping &victim, Mapping &aggr1, Mapping &aggr2){
-    
     // find aggressor rows, the ones that are adjacent to victim row
     aggr1 = Mapping(victim); aggr1.incrementRow();
     aggr2 = Mapping(victim); aggr2.decrementRow();
@@ -41,7 +40,6 @@ void setupAggr(Mapping &victim, Mapping &aggr1, Mapping &aggr2){
 
 
 void setupSync(Mapping &victim, Mapping &sync1, Mapping &sync2){
-
     // find sync rows, these should be seperated from the victim & aggressors
     sync1 = Mapping(victim);
     sync2 = Mapping(victim);
@@ -59,7 +57,6 @@ void setupSync(Mapping &victim, Mapping &sync1, Mapping &sync2){
 
 
 void setupDummy(Mapping &victim, Mapping *dummyRows){
-
     // rows close to the vistim are assigned as dummy row addresses
     // kNumDummyRows (16) are created to bypass the TRR mitigation 
     for (int j = 0; j < kNumDummyRows; j++){
@@ -74,7 +71,6 @@ void setupDummy(Mapping &victim, Mapping *dummyRows){
 }
 
 void setupDataRows(Mapping &victim, Mapping &aggr1, Mapping &aggr2, Mapping *dummy, unsigned long long victimData){
-
     for (int i = 0 ; i < 8192/sizeof(unsigned long long) ; i++){
         *((unsigned long long*) victim.toVirt()) = victimData;
         *((unsigned long long*) aggr1.toVirt()) = ~victimData;
@@ -298,11 +294,7 @@ void saveReport(std::ofstream &bitFlipsFile, Mapping &victim, int bitFlips, int 
 
 
 __attribute__((optimize("unroll-loops")))
-int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, int numVictims){
-
-    std::ofstream bitFlipsFile;
-    bitFlipsFile.open("bitflips.txt");
-    bitFlipsFile << "row,aggressors_activations,reads,median_of_time,bitflips" << std::endl;
+int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, int numVictims, std::ofstream &bitFlipsFile){
 
     // see total number of rows
     std::cout << color::BLUE << "[*] " << color::RESET << "Number of total rows: " << kNumOfRows << std::endl;

@@ -18,4 +18,4 @@
 #include "Mapping.h"
 
 
-int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, int numVictims);
+int doubleSidedAttack(uintptr_t targetAddress, int numAggrActs, int numReads, int numVictims, std::ofstream &bitFlipsFile);
