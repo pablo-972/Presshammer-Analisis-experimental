@@ -1,0 +1,57 @@
+{
+    "code": "for (int i = 0; i < iterations; i++) {\n  asm volatile (\"lfence\");\n  for (int j = 0; j < acts; j++) {\n  asm volatile (\"mfence\");\n  for (int k = 0; k < reads; k++)\n  *(aggrArr[k*2 + 0]);\n  for (int k = 0; k < reads; k++)\n  *(aggrArr[k*2 + 1]);\n  for (int k = 0; k < reads; k++)\n  asm volatile(\"clflushopt (%0)\" : : \"r\" (aggrArr[k*2 + 0]) : \"memory\");\n  for (int k = 0; k < reads; k++)\n  asm volatile(\"clflushopt (%0)\" : : \"r\" (aggrArr[k*2 + 1]) : \"memory\");\n  }\n}", 
+    "label": 0
+}
+{
+    "code": "for (int i = 0; i < x; i++) {\n *(rows[i]);\n asm volatile(\"clflush (%0)\" : : \"r\" (rows[i]) : \"memory\");\n}",
+    "label": 0
+}
+{
+    "code": "for (int i = 0; i < x; i++)\n *(rows[i]);\n for (int i = 0; i < x; i++)\n asm volatile(\"clflush (%0)\" : : \"r\" (rows[i]) : \"memory\");\n",
+    "label": 0
+}
+{
+    "code": "for (int i = 0; i < x; i++) {\n *row;\n asm volatile(\"clflush (%0)\" : : \"r\" *row : \"memory\");\n}",
+    "label": 0
+}
+{
+    "code": "for (int i = 0; i < x; i++)\n *row;\n asm volatile(\"clflush (%0)\" : : \"r\" row : \"memory\");\n}",
+    "label": 0
+}
+{
+    "code": "asm volatile(\"mfence\");\n for (int i = 0; i < x; i++) {\n  *(aggrArr[i]);\n}", 
+    "label": 0
+}
+{
+    "code": "for (int i = 0; i < x; i++) {\n  for (int j = 0; j < x; j++) {\n *(aggrArr[j]);\n  asm volatile(\"clflushopt (%0)\" : : \"r\" (aggrArr[j]) : \"memory\");\n  }\n}", 
+    "label": 0
+}
+{
+    "code": "for (int j = 0; j < numAggrActs; j++) {\n  asm volatile (\"mfence\");\n  for (int k = 0; k < numReads; k++) *(aggrArr[k*2 + 0]);\n  for (int k = 0; k < numReads; k++) *(aggrArr[k*2 + 1]);\n  for (int k = 0; k < numReads; k++) asm volatile(\"clflushopt (%0)\" : : \"r\" (aggrArr[k*2 + 0]) : \"memory\");\n  for (int k = 0; k < numReads ; k++) asm volatile(\"clflushopt (%0)\" : : \"r\" (aggrArr[k*2 + 1]) : \"memory\");\n}", 
+    "label": 0
+}
+{
+    "code": "asm volatile(\"mfence\");", 
+    "label": 1
+}
+{
+    "code": "asm volatile(\"lfence\");",
+    "label": 1
+}
+{
+    "code": "for (int i = 0; i < x; i++) {\n  *(rows[i]);\n}",
+    "label": 1
+}
+{
+    "code": "for (int i = 0; i < x; i++){\n *row;\n}",
+    "label": 1
+}
+{
+    "code": "*(rows[i]);",
+    "label": 1
+}
+{
+    "code": "*row;",
+    "label": 1
+}
+
