@@ -123,8 +123,7 @@ int main(int argc, char *argv[]){
     };
     
 
-    while ((arguments = getopt_long(argc, argv, "vn:dt:", long_options, &index)) != -1)
-    {
+    while ((arguments = getopt_long(argc, argv, "vnh:", long_options, &index)) != -1){
         switch (arguments){
             case 'n':
                 numVictims = std::atoi(optarg);

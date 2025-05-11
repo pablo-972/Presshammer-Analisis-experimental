@@ -91,7 +91,7 @@ void accessTimeClock(volatile unsigned long long *aggrArr1[], volatile unsigned 
             asm volatile("lfence");
             clock_gettime(CLOCK_REALTIME, &tglob1); // gets the initial time
             *(aggrArr1[j]); // access to the aggressor row 1
-            asm volatile("lfence"); // gets the finish time
+            asm volatile("lfence"); 
 
             clock_gettime(CLOCK_REALTIME, &tglob2); // gets the finish time
             latencyValuesAggr1[j] = tglob2.tv_nsec - tglob1.tv_nsec; // saves the access time for row 1
