@@ -9,6 +9,7 @@
 #include <elf.h>
 #include "Mapping.h"
 #include "presshammer.h"
+#include "utils.h"
 
 
 void checkElfHeader(bool isDoubleSided);

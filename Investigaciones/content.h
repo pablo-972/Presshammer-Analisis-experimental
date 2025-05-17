@@ -9,6 +9,7 @@
 #include <string>
 #include "Mapping.h"
 #include "presshammer.h"
+#include "utils.h"
 
 
 void checkContentFile(bool isDoubleSided);

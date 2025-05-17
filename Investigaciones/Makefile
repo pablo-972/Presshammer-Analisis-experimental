@@ -3,7 +3,7 @@ CFLAGS := -std=c++11 -g -O3
 LFLAGS :=
 LIBS :=
 
-MAINSOURCES := main.cpp Mapping.cpp permissions.cpp content.cpp elf_header.cpp presshammer.cpp
+MAINSOURCES := main.cpp Mapping.cpp permissions.cpp content.cpp elf_header.cpp presshammer.cpp utils.cpp
 MAINOBJS := $(MAINSOURCES:.cpp=.o)
 
 TARGET := main

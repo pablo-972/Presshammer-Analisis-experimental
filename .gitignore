@@ -1,3 +1,8 @@
 AnalisisExperimental/cpp/latency.txt
 AnalisisExperimental/cpp/bitflips.txt
 Mitigaciones/ClasificadorCodigo/secure-codebert
+Mitigaciones/ClasificadorCodigo/__pycache__/test_code.cpython-312.pyc
+Mitigaciones/DetectorAccesos/c_latency.txt
+Mitigaciones/DetectorAccesos/ns_latency.txt
+AnalisisExperimental/cpp/c_latency.txt
+AnalisisExperimental/cpp/ns_latency.txt

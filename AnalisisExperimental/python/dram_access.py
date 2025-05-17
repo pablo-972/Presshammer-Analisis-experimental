@@ -33,15 +33,21 @@ def show_latency_grouped(frequency_grouped):
 
 
 def get_latencies():
-    latencies = []
+    ns_latencies = []
+    c_latencies = []
 
-    with open("VMware-Ubuntu/latency.txt", "r") as latency_file:
+    with open("VMware-Ubuntu/ns_latency.txt", "r") as latency_file:
         for line in latency_file:
             values = line.split()
-            latencies.extend([int(latency) for latency in values[1:] if int(latency) > 0])
+            ns_latencies.extend([int(latency) for latency in values[1:] if int(latency) > 0])
 
-    nanoseconds = latencies[:25600000]
-    cycles = latencies[25600000:]
+    with open("VMware-Ubuntu/ns_latency.txt", "r") as latency_file:
+        for line in latency_file:
+            values = line.split()
+            c_latencies.extend([int(latency) for latency in values[1:] if int(latency) > 0])
+
+    nanoseconds = ns_latencies
+    cycles = c_latencies
     
     return nanoseconds, cycles
 

@@ -203,9 +203,12 @@ void accessCycles(volatile unsigned long long *aggrArr1[], volatile unsigned lon
 __attribute__((optimize("unroll-loops")))
 void verifytAggOn(uintptr_t targetAddress){
 
-    // open latency.txt for writing latency records
-    std::ofstream latencyFile;
-    latencyFile.open("latency.txt");
+    // open nsLatency.txt & cLatency for writing latency records
+    std::ofstream nsLatencyFile;
+    nsLatencyFile.open("ns_latency.txt");
+
+    std::ofstream cLatencyFile;
+    cLatencyFile.open("c_latency.txt");
     
     // addressinng for aggressor and temp rows
     Mapping::baseAddress = targetAddress;
@@ -246,15 +249,16 @@ void verifytAggOn(uintptr_t targetAddress){
     // we test the access time using the system clock and average # of cycles:
 
     // 1. test access time with system clock (clock_gettime(CLOCK_REALTIME, &time))
-    accessTimeClock(aggrArr1, aggrArr2, tempAddr, latencyFile, latencyValuesAggr1, latencyValuesAggr2);
+    accessTimeClock(aggrArr1, aggrArr2, tempAddr, nsLatencyFile, latencyValuesAggr1, latencyValuesAggr2);
     cleanLatencyRecord(latencyValuesAggr1, latencyValuesAggr2);
 
     // 2. test access time with average # of cycles
-    accessCycles(aggrArr1, aggrArr2, tempAddr, latencyFile, latencyValuesAggr1, latencyValuesAggr2);
+    accessCycles(aggrArr1, aggrArr2, tempAddr, cLatencyFile, latencyValuesAggr1, latencyValuesAggr2);
     
     
     // file is closed
-    latencyFile.close();
+    nsLatencyFile.close();
+    cLatencyFile.close();
 
 
 }

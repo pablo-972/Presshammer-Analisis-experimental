@@ -12,6 +12,7 @@
 #include "permissions.h"
 #include "content.h"
 #include "elf_header.h"
+#include "utils.h"
 
 
 namespace color {
@@ -86,18 +87,32 @@ int main(int argc, char *argv[]){
     }
 
     if(checkPermissions){
+        /*
+        Test whether file permission bits (like executable permission) can be modified in memory
+        using Presshammer. This involves reading the st_mode metadata from a file's stat structure.
+        The goal is to determine if these in-memory permission changes can affect actual file behavior. 
+        */  
         checkPermissionsFile(isDoubleSided);
     }
 
     if(checkContent){
+        /*
+        Test whether it is possible to alter the content of a critical file (like /etc/passwd)
+        through Presshammer. The file is mapped read-only, and the test verifies if a bitflip
+        could modify values (e.g., UID) in memory, even though changes won't persist to disk.
+        */ 
         checkContentFile(isDoubleSided);
     }
 
     if(checkElf){
+        /*
+        Test whether the ELF header's entry point (e_entry) in a SUID binary (e.g., /usr/bin/ping)
+        can be altered using Presshammer. The idea is to redirect execution flow to a memory region
+        containing shellcode, potentially leading to privilege escalation if the bitflip is successful.
+        */
         checkElfHeader(isDoubleSided);
     }
 
-    std::cout << color::GREEN << "[+] " << color::RESET << "Finished!" << std::endl;
     exit(0);
 }
 

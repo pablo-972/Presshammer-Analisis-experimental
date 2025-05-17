@@ -1,126 +1,104 @@
 #include "permissions.h"
 
 
-namespace color {
-    constexpr const char* RESET  = "\033[0m";
-    constexpr const char* RED    = "\033[31m";
-    constexpr const char* GREEN  = "\033[32m";
-    constexpr const char* YELLOW = "\033[33m";
-    constexpr const char* BLUE   = "\033[34m";
-}
-
-
 void createFile(const char *testFile){
     std::ofstream file (testFile);
     if (!file.is_open()){
-        std::cerr << color::RED << "[!] " << color::RESET << "Error creating file: " << testFile << std::endl; 
+        showErrorInfo("Error creating file: " + std::string(testFile));
+        exit(EXIT_FAILURE);
     }
-    std::cout << color::BLUE << "[*] " << color::RESET << "File created: " << testFile << std::endl;
 }
 
-
 int openFile(const char *testFile){
-    // the file is opened with the read/write flag so that, in case of modifying any permission, it is saved in disk
     int fd = open(testFile, O_RDWR);
 
     if(fd == -1){
-        std::cerr << color::RED << "[!] " << color::RESET << "Error opening file: " << testFile << std::endl;
+        showErrorInfo("Error opening file: " + std::string(testFile));
         perror("open");
         close(fd);
         exit(EXIT_FAILURE);
     }
 
-    // perform fsync to ensure that all metadata is synchronized and loaded into memory
     if(fsync(fd) == -1){
-        std::cerr << color::RED << "[!] " << color::RESET << "Error synchronizing metadata" << std::endl;
+        showErrorInfo("Error synchronizing metadata");
         perror("fsync");
         close(fd);
         exit(EXIT_FAILURE);
     }
-
     return fd;
 }
 
 
-void showData(const char *testFile, uintptr_t target, mode_t mode){
-    std::cout << "\n" << "----------- " << color::RED << "Target file: " << testFile << color::RESET <<  " -----------" << '\n'
-    << color::BLUE << "[*] " << color::RESET << "Actual permissions: " << std::oct << (mode & 0777)  << "\n" 
-    << color::BLUE << "[*] " << color::RESET << "File permissions struct address: " << std::hex << "0x" << target << std::dec << '\n'
-    << "--------------------------------------------------" << '\n' << std::endl;
-}
-
-
 void checkPermissionsFile(bool isDoubleSided){
-    std::cout << color::BLUE << "[*] " << color::RESET << "CHECK PERMISSIONS FILE" << std::endl;
+    showInfo("CHECK PERMISSIONS FILE");
 
+    // ========================================================================
+    // STEP 1. Create a test file, open it and get a copy of the file metadata
+    // ========================================================================
+    showStep(1, "Create a test file, \n open it and get a copy of the file metadata");
 
-    //1. creates a test file
     const char* testFile = "/tmp/test.txt";
     createFile(testFile);
+    showSuccessInfo("File: " + std::string(testFile) + " created");
 
-
-    //2. opens the test file
     int fd = openFile(testFile);
+    showSuccessInfo("File: " + std::string(testFile) + " opened with the read/write flag so, in case of modifying any permission, can save it in disk");
 
-
-    //3. gets metadata copy
     struct stat sb;
-
     if(fstat(fd, &sb) == -1){
-        std::cerr << color::RED << "[!] " << color::RESET << "Error getting metadata copy" << std::endl;
+        showErrorInfo("Error getting metadata copy");
         perror("fstat");
         close(fd);
         exit(EXIT_FAILURE);
     }
+    showSuccessAddress("Metadata copy address: ", (uintptr_t) &sb);
 
 
-    //4. gets target address
+    // ========================================================================
+    // STEP 2. Get memory address of the st_mode field 
+    // ========================================================================
+    showStep(2, "Get memory address of the st_mode field");
+
     void* stModeAddr = (void*)(&sb.st_mode);
     volatile char *targetAddress = (volatile char*) stModeAddr;
     uintptr_t target = (uintptr_t) targetAddress;
 
+    showPermissionsInfo("Actual permissions: ", sb.st_mode);
+    showCriticalAddress("File permissions struct address (target): ", target);
 
-    // shows data
-    showData(testFile, target, sb.st_mode);
 
-
-    //5 check if can apply presshammer
+    // ========================================================================
+    // STEP 3. Check if can apply presshammer
+    // ========================================================================
+    showStep(3, "Check if can apply presshammer");
+    
     if(isDoubleSided){
         doubleSidedPresshammer(target);
     }else{
-        // try single sided presshammer because mapping may be unknown
-        singleSidedPresshammer(target);
+        singleSidedPresshammer(target); // try single sided presshammer because mapping may be unknown
     }
+    showSuccessAddress("Hammered target address: ", target);
 
-
-    /*
-    it has been verified that we can access the row and apply presshammer 
-    but anyway we can change the file permissions from the copy of the metadata since it is temporary and local data.
-    */
-
-    sb.st_mode |= S_IXUSR;
-    showData(testFile, target, sb.st_mode);
-
-    /*
-    although the program can modify the value of sb.st_mode (e.g., adding execute permission),
-    this only affects the local copy of the structure returned by fstat().
-    */
-
-
-    // close file
     close(fd);
 
 
-    // CONCLUSION 
-    /*
-    in this case, applying presshammer does not make sense because we are not directly accessing
-    the inode stored in RAM or disk, but just a copy of it returned to userland.
+    // ========================================================================
+    // CONCLUSION
+    // ========================================================================
+    showConclusion();
+    std::cout << "It has been verified that we can access the row and apply presshammer, \n"
+    << "but even if we modify the permissions in the local memory copy of the metadata, \n"
+    << "it only affects the local, temporary data, not the actual filesystem data. \n" << std::endl;
 
-    even if we manage to flip bits via Rowhammer or Presshammer at this address,
-    the changes would affect only temporary, volatile data used by the process,
-    not the actual permission bits recognized by the filesystem.
+    std::cout << "While we can modify the sb.st_mode in memory (e.g., adding execute permissions), \n"
+    << "this only affects the temporary structure returned by fstat(). \n"
+    << "It does NOT modify the actual permissions on the disk. \n" << std::endl;
 
-    thus, changing permissions using this method is NOT viable.
-    */
+    std::cout << "Applying presshammer here does not make sense because: \n"
+    << "- We are not directly accessing the inode stored in RAM or on disk. \n"
+    << "- The changes only affect the temporary, volatile copy of the metadata in memory. \n"
+    << "- Even if we apply Rowhammer or Presshammer and flip bits at this address, the changes would not persist after the program ends. \n"
+    << "- Modifying file permissions using this method is NOT viable for permanent changes to the filesystem. \n" << std::endl;
+
 
 }
