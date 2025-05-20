@@ -18,37 +18,39 @@ def compute_metrics(eval_pred):
     return {"accuracy": acc, "f1": f1, "precision": precision, "recall": recall}
 
 
-
-# Load dataset
+# --------- Load dataset --------- #
 dataset = load_dataset("json", data_files="code_dataset.jsonl", split="train")
 
-# Tokenizer
+
+# --------- Tokenizer --------- #
 tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
 tokenized = dataset.map(lambda x: tokenize(x, tokenizer))
 
-# Model
+
+# --------- Model --------- #
 model = AutoModelForSequenceClassification.from_pretrained("microsoft/codebert-base", num_labels=2)
 
-# Training
+
+# --------- Training --------- #
 training_args = TrainingArguments(
-    output_dir="./secure-codebert",
-    num_train_epochs=5,
-    per_device_train_batch_size=8,
+    output_dir="./HammerBERT",
+    num_train_epochs=10,
+    per_device_train_batch_size=16,
     save_strategy="epoch",
     logging_dir="./logs"
 )
 
-# Trainer
+# --------- Trainer --------- #
 trainer = Trainer(
     model=model,
     args=training_args,
     train_dataset=tokenized,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,
     data_collator=DataCollatorWithPadding(tokenizer),
     compute_metrics=compute_metrics
 )
 
 trainer.train()
-trainer.save_model("./secure-codebert")  
-tokenizer.save_pretrained("./secure-codebert")  
+trainer.save_model("./HammerBERT")  
+tokenizer.save_pretrained("./HammerBERT")  
 

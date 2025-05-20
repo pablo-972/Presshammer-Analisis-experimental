@@ -6,3 +6,14 @@ Mitigaciones/DetectorAccesos/c_latency.txt
 Mitigaciones/DetectorAccesos/ns_latency.txt
 AnalisisExperimental/cpp/c_latency.txt
 AnalisisExperimental/cpp/ns_latency.txt
+Ampliaciones/PressRL/__pycache__/env.cpython-312.pyc
+Ampliaciones/PressRL/__pycache__/env.cpython-313.pyc
+Ampliaciones/PressRL/ns_latency.txt
+Ampliaciones/PressRL/test_latency.txt
+Ampliaciones/PressRL/train_latency.txt
+Analisis Experimental/cpp/bitflips.txt
+Analisis Experimental/cpp/c_latency.txt
+Analisis Experimental/cpp/ns_latency.txt
+Mitigaciones/HammerBERT/__pycache__/test_code.cpython-312.pyc
+Mitigaciones/HammerBERT/__pycache__/test_codes.cpython-312.pyc
+Mitigaciones/HammerBERT/HammerBERT

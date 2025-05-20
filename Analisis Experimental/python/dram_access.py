@@ -38,13 +38,13 @@ def get_latencies():
 
     with open("VMware-Ubuntu/ns_latency.txt", "r") as latency_file:
         for line in latency_file:
-            values = line.split()
-            ns_latencies.extend([int(latency) for latency in values[1:] if int(latency) > 0])
+            values = line.strip().split()
+            ns_latencies.extend([int(latency) for latency in values[2:] if int(latency) > 0]) 
 
-    with open("VMware-Ubuntu/ns_latency.txt", "r") as latency_file:
+    with open("VMware-Ubuntu/c_latency.txt", "r") as latency_file:
         for line in latency_file:
-            values = line.split()
-            c_latencies.extend([int(latency) for latency in values[1:] if int(latency) > 0])
+            values = line.strip().split()
+            c_latencies.extend([int(latency) for latency in values[2:] if int(latency) > 0])
 
     nanoseconds = ns_latencies
     cycles = c_latencies

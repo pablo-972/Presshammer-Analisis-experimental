@@ -63,7 +63,7 @@ volatile char* allocateTargetMemory(){
 
 
 void experimentalAnalysis(bool isVerify, int numVictims){
-    std::cout << color::GREEN << "[+] " << color::RESET << "STARTING ATTACK " << std::endl;
+    std::cout << color::BLUE << "[+] " << color::RESET << "STARTING ATTACK " << std::endl;
 
     volatile char *targetAddress = allocateTargetMemory();
 
@@ -121,6 +121,11 @@ int main(int argc, char *argv[]){
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
+
+    if (argc == 1) {  
+        std::cout << "Usage: " << argv[0] << " [--verify, -v] [--numVictims, -n N]" << std::endl;
+        exit(0);
+    }
     
 
     while ((arguments = getopt_long(argc, argv, "vnh:", long_options, &index)) != -1){
