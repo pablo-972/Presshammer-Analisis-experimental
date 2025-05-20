@@ -1,5 +1,6 @@
-from stable_baselines3 import PPO
 from env import PresshammerAttackEnv
+from stable_baselines3 import PPO
+
 
 TRAIN_DATASET = "train_latency.txt"
 

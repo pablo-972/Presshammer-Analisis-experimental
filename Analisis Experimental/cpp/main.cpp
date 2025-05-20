@@ -128,7 +128,7 @@ int main(int argc, char *argv[]){
     }
     
 
-    while ((arguments = getopt_long(argc, argv, "vnh:", long_options, &index)) != -1){
+    while ((arguments = getopt_long(argc, argv, "vn:h", long_options, &index)) != -1){
         switch (arguments){
             case 'n':
                 numVictims = std::atoi(optarg);
@@ -138,13 +138,13 @@ int main(int argc, char *argv[]){
                 break;
             case 'h':
                 std::cout << "Usage: " << argv[0] << " [--verify, -v] [--numVictims, -n N]" << std::endl;
-                break;
+                exit(EXIT_FAILURE);
             default:
                 std::cerr << "Usage: " << argv[0] << " [--verify, -v] [--numVictims, -n N]" << std::endl;
                 exit(EXIT_FAILURE);
         }
     }
-
+    
     experimentalAnalysis(isVerify, numVictims);
     exit(0);
 }
