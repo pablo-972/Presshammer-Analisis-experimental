@@ -74,7 +74,7 @@ def plot_time_series(latency_dict, title, ylabel, MAX_LATENCY):
     for row in ["aggr1", "aggr2"]:
         values = [v for v in latency_dict[row] if v <= MAX_LATENCY]
         values = values[:SAMPLE_SIZE]
-        plt.plot(values, label=row, linewidth=1.5, color=colors[row])
+        plt.plot(values, label=row, linewidth=1, color=colors[row])
 
     plt.title(title + f" (máx ≤ {MAX_LATENCY})")
     plt.xlabel("Paso de acceso")
