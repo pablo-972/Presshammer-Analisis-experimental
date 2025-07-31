@@ -3,3 +3,5 @@ datasets
 scikit-learn 
 torch
 termcolor
+hf_xet
+transformers[torch]
