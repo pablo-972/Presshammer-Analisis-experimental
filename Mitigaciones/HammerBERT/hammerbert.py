@@ -8,10 +8,11 @@ from test_codes import *
 # --------- Values --------- #
 SECURE = 1
 INSECURE = 0
-THRESHOLD = 0.85
+THRESHOLD = 0.8
 CODES = [CODE_1, CODE_2, CODE_3, CODE_4, CODE_5, CODE_6, CODE_7, CODE_8, CODE_9, CODE_10,
          CODE_11, CODE_12, CODE_13, CODE_14, CODE_15, CODE_16, CODE_17, CODE_18, CODE_19,
-         CODE_20, CODE_21, CODE_22, CODE_23, CODE_24, CODE_25]
+         CODE_20, CODE_21, CODE_22, CODE_23, CODE_24, CODE_25, CODE_26, CODE_27, CODE_28,
+         CODE_29]
 
 
 # --------- Load model && tokenizer trained --------- #
@@ -60,14 +61,15 @@ show_results("CODE_1", code1_prob_secure, code1_prob_insecure)
 code2_prob_secure, code2_prob_insecure = classify(CODE_2)
 show_results("CODE_2", code2_prob_secure, code2_prob_insecure)
 
-code3_prob_secure, code3_prob_insecure = classify(CODE_5)
+code3_prob_secure, code3_prob_insecure = classify(CODE_12)
 show_results("CODE_12", code3_prob_secure, code3_prob_insecure)
 
-code4_prob_secure, code4_prob_insecure = classify(CODE_4)
+code4_prob_secure, code4_prob_insecure = classify(CODE_13)
 show_results("CODE_13", code4_prob_secure, code4_prob_insecure)
 
-code7_prob_secure, code7_prob_insecure = classify(CODE_7)
+code7_prob_secure, code7_prob_insecure = classify(CODE_15)
 show_results("CODE_15", code7_prob_secure, code7_prob_insecure)
+
 
 
 

@@ -27,6 +27,10 @@
     "label": 0
 }
 {
+    "code": "asm volatile(\"clflush (%0)\" : : \"r\" row : \"memory\");",
+    "label": 1
+}
+{
     "code": "asm volatile(\"mfence\");",
     "label": 1
 }

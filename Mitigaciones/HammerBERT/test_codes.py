@@ -127,11 +127,30 @@ while (condition) {
 }
 """
 
+CODE_12 = """
+for (int i = 0; i < 1000; ++i) {
+    asm volatile("clflush (%0)" : : "r" (buffer[i % 8]) : "memory");
+    benchmark_results[i] = buffer[i % 8];
+}
+"""
+
+CODE_13 = """
+for (int i = 0; i < 100; ++i) {
+    buffer[i % 10]++;
+    for (int j = 0; j < 100; j++){
+        *(buffer[i % 10]);
+    }
+}
+asm volatile("clflush (%0)" : : "r" (buffer[1]) : "memory")
+asm volatile("clflush (%0)" : : "r" (buffer[0]) : "memory")
+"""
+
+
 
 
 # --------- Secure codes --------- #
 
-CODE_12 = """
+CODE_14 = """
 const int size = 100;
         
 for (int i = 0; i < size; i++){
@@ -145,7 +164,7 @@ for (int j = 0; j < size; j++){
 """
 
 
-CODE_13 = """
+CODE_15 = """
 const int size = 50;
 std::vector<int> data(size);
 
@@ -161,7 +180,7 @@ for (const auto& val : data) {
 """
 
 
-CODE_14 = """
+CODE_16 = """
 const int x = 100;
 int total = 0;
 
@@ -172,7 +191,7 @@ for (int i = 0; i < x; ++i) {
 std::cout << "Total: " << total << std::endl;
 """
 
-CODE_15 = """
+CODE_17 = """
 int arr[100];
 for (int i = 0; i < 100; i++) {
     arr[i] = i * 2;
@@ -181,20 +200,20 @@ std::cout << "Computation done" << std::endl;
 """
 
 
-CODE_16 = """
+CODE_18 = """
 std::vector<int> numbers = {4, 2, 7, 1};
 std::sort(numbers.begin(), numbers.end());
 """
 
 
-CODE_17 = """
+CODE_19 = """
 for (int i = 0; i < N; i++) {
     processData(arr[i]);
 }
 """
 
 
-CODE_18 = """
+CODE_20 = """
 int x = 10;
 int y = 20;
 int z = x + y;
@@ -202,21 +221,21 @@ printf("Sum: %d", z);
 """
 
 
-CODE_19 = """
+CODE_21 = """
 std::string name = "hammerbert";
 std::reverse(name.begin(), name.end());
 std::cout << name;
 """
 
 
-CODE_20 = """
+CODE_22 = """
 for (int i = 0; i < 50; ++i) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 """
 
 
-CODE_21 = """
+CODE_23 = """
 std::vector<std::string> lines;
 std::ifstream file("input.txt");
 std::string line;
@@ -226,28 +245,47 @@ while (getline(file, line)) {
 """
 
 
-CODE_22 = """
+CODE_24 = """
 std::array<int, 5> a = {1, 2, 3, 4, 5};
 int result = std::accumulate(a.begin(), a.end(), 0);
 """
 
 
-CODE_23 = """
+CODE_25 = """
 for (int i = 0; i < list.size(); ++i) {
     std::cout << list[i] << std::endl;
 }
 """
 
-CODE_24 = """
+CODE_26 = """
 auto now = std::chrono::system_clock::now();
 auto timestamp = std::chrono::system_clock::to_time_t(now);
 std::cout << std::ctime(&timestamp);
 """
 
-CODE_25 = """
+CODE_27 = """
 for (const auto& val : array) {
     if (val % 2 == 0) {
         std::cout << val << " is even" << std::endl;
     }
 }
+"""
+
+CODE_28 = """
+int temp = 0;
+for (int i = 0; i < 10; ++i) {
+    temp += i;
+    asm volatile("clflushopt (%0)" : : "r" (&temp) : "memory");
+}
+"""
+
+CODE_29 = """
+const int size = 64;
+for (int i = 0; i < size; ++i) {
+    arr[i] = i;
+}
+for (int i = 0; i < size; ++i) {
+    asm volatile("clflush (%0)" : : "r" (&arr[i]) : "memory");
+}
+std::cout << "Data flushed." << std::endl;
 """
