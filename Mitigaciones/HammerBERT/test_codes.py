@@ -145,12 +145,19 @@ asm volatile("clflush (%0)" : : "r" (buffer[1]) : "memory")
 asm volatile("clflush (%0)" : : "r" (buffer[0]) : "memory")
 """
 
+CODE_14 = """
+for (int i = 0; i < 1000; ++i) {
+    asm volatile("clflush (%0)" : : "r" (buffer[i % 8]) : "memory");
+    benchmark_results[i] = buffer[i % 8];
+}
+"""
+
 
 
 
 # --------- Secure codes --------- #
 
-CODE_14 = """
+CODE_15 = """
 const int size = 100;
         
 for (int i = 0; i < size; i++){
@@ -159,12 +166,11 @@ for (int i = 0; i < size; i++){
 
 for (int j = 0; j < size; j++){
     std::cout << "Elemento: " << arr[j] << std::endl;
-}
-        
+} 
 """
 
 
-CODE_15 = """
+CODE_16 = """
 const int size = 50;
 std::vector<int> data(size);
 
@@ -180,7 +186,7 @@ for (const auto& val : data) {
 """
 
 
-CODE_16 = """
+CODE_17 = """
 const int x = 100;
 int total = 0;
 
@@ -191,7 +197,7 @@ for (int i = 0; i < x; ++i) {
 std::cout << "Total: " << total << std::endl;
 """
 
-CODE_17 = """
+CODE_18 = """
 int arr[100];
 for (int i = 0; i < 100; i++) {
     arr[i] = i * 2;
@@ -200,20 +206,20 @@ std::cout << "Computation done" << std::endl;
 """
 
 
-CODE_18 = """
+CODE_19 = """
 std::vector<int> numbers = {4, 2, 7, 1};
 std::sort(numbers.begin(), numbers.end());
 """
 
 
-CODE_19 = """
+CODE_20 = """
 for (int i = 0; i < N; i++) {
     processData(arr[i]);
 }
 """
 
 
-CODE_20 = """
+CODE_21 = """
 int x = 10;
 int y = 20;
 int z = x + y;
@@ -221,21 +227,21 @@ printf("Sum: %d", z);
 """
 
 
-CODE_21 = """
+CODE_22 = """
 std::string name = "hammerbert";
 std::reverse(name.begin(), name.end());
 std::cout << name;
 """
 
 
-CODE_22 = """
+CODE_23 = """
 for (int i = 0; i < 50; ++i) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 """
 
 
-CODE_23 = """
+CODE_24 = """
 std::vector<std::string> lines;
 std::ifstream file("input.txt");
 std::string line;
@@ -245,25 +251,25 @@ while (getline(file, line)) {
 """
 
 
-CODE_24 = """
+CODE_25 = """
 std::array<int, 5> a = {1, 2, 3, 4, 5};
 int result = std::accumulate(a.begin(), a.end(), 0);
 """
 
 
-CODE_25 = """
+CODE_26 = """
 for (int i = 0; i < list.size(); ++i) {
     std::cout << list[i] << std::endl;
 }
 """
 
-CODE_26 = """
+CODE_27 = """
 auto now = std::chrono::system_clock::now();
 auto timestamp = std::chrono::system_clock::to_time_t(now);
 std::cout << std::ctime(&timestamp);
 """
 
-CODE_27 = """
+CODE_28 = """
 for (const auto& val : array) {
     if (val % 2 == 0) {
         std::cout << val << " is even" << std::endl;
@@ -271,7 +277,7 @@ for (const auto& val : array) {
 }
 """
 
-CODE_28 = """
+CODE_29 = """
 int temp = 0;
 for (int i = 0; i < 10; ++i) {
     temp += i;
@@ -279,7 +285,7 @@ for (int i = 0; i < 10; ++i) {
 }
 """
 
-CODE_29 = """
+CODE_30 = """
 const int size = 64;
 for (int i = 0; i < size; ++i) {
     arr[i] = i;
