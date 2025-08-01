@@ -5,3 +5,6 @@ torch
 termcolor
 hf_xet
 transformers[torch]
+tabulate
+matplotlib
+seaborn
