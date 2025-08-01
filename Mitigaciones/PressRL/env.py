@@ -47,12 +47,12 @@ class PressRL(gym.Env):
         reward = 0
         if action == 1: # Access
             if not self.row_closed:
-                reward = 1 # Safe access 
+                reward = 1.0 # Safe access 
             else:
-                reward = -5 # Unsafe access
+                reward = -5.0 # Unsafe access
         else: # Wait
             if self.row_closed:
-                reward = 1.0 # Safe wait
+                reward = 2.0 # Safe wait
             else:
                 reward = -0.2 # Unnecessary wait
         
