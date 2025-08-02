@@ -16,7 +16,7 @@ model = PPO.load("PressRL_PPO")
 
 # --------- Algorithm Prediction by Step --------- #
 def prediction_by_step(model, env):
-    obs, _ = env.reset(seed=42)
+    obs, _ = env.reset()
     done = False
     steps = 0
     max_steps = 800
