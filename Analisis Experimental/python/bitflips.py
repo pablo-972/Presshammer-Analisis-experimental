@@ -1,26 +1,53 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from tabulate import tabulate
 
 
-
+# --------- Config --------- #
 SYSTEM = "VMware (Ubuntu 24.04.2 LTS)"
 DIR = "WSL"
-
-# --------- Bitflips data --------- #
-df = pd.read_csv(f"{DIR}/bitflips.txt")
+df = pd.read_csv(f"bitflips.txt")
 bitflips = df.groupby(["aggressors_activations", "reads"])["bitflips"].sum().reset_index()
 
 
+# --------- Info --------- #
 def bitflips_info():
-    rows = df.groupby(["aggressors_activations", "reads"]).size().reset_index()
+    # Summary table
+    info_table = df.groupby(["aggressors_activations", "reads"]).agg(
+        bitflips=('bitflips', 'sum'),
+        total_tests=('bitflips', 'count'),
+        avg_median_time=('median_of_time', 'mean')  
+    ).reset_index()
+    info_table = info_table.sort_values(by=["aggressors_activations", "reads"], ascending=[False, True])
 
-    complete_table = pd.merge(bitflips, rows, on=["aggressors_activations", "reads"])
-    complete_table = complete_table.sort_values(by=["aggressors_activations", "reads"])
 
-    print(complete_table)
+    info_table["avg_median_time_µs"] = info_table["avg_median_time"] / 1000
+
+    display_cols = [
+        "aggressors_activations", 
+        "reads", 
+        "bitflips", 
+        "total_tests", 
+        "avg_median_time_µs"
+    ]
+
+    print("\nINFO TABLE\n")
+    print(tabulate(info_table[display_cols], headers=["aggressors_activations", "reads", "bitflips", "total_test", "avg_median_time_µs"], tablefmt="github", showindex=False))
 
 
-def bar_chart():
+    # Total average median time
+    total_avg_median_ns = df["median_of_time"].mean()
+    total_avg_median_us = total_avg_median_ns / 1000
+
+    print(f"\nTotal average median time:\n")
+    print(f"- Nanoseconds: {total_avg_median_ns:.2f} ns")
+    print(f"- Microseconds: {total_avg_median_us:.2f} µs")
+
+
+
+
+# --------- Plot total bit flips --------- # 
+def plot_total_bit_flips():
     df['bitflips_0'] = df['bitflips'].apply(lambda x: 1 if x == 0 else 0)  # 1 when bitflips == 0, 0 otherwise
     df['bitflips_gt_0'] = df['bitflips'].apply(lambda x: 1 if x > 0 else 0)  # 1 when bitflips > 0, 0 otherwise
 
@@ -50,13 +77,12 @@ def bar_chart():
     plt.show()
 
 
-def main():
-    bitflips_info()
-    bar_chart()
 
-
+# --------- Main --------- #
 if __name__ == "__main__":
-    main()
+    bitflips_info()
+    plot_total_bit_flips()
+
 
 
 
