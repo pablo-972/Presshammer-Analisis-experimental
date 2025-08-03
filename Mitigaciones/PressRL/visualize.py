@@ -79,7 +79,7 @@ def show_performance_values(accuracy, precision, recall, f1, safe_access_rate, b
     performance_values = [
         ["Total steps", total],
         ["Total accesses", total_accesses],
-        ["Total waiting times", total-total_accesses]
+        ["Total waiting times", total-total_accesses],
         ["Correct accesses", correct_accesses],
         ["Wrong accesses", wrong_accesses],
         ["Waits when safe (missed opps)", waits_when_safe],
