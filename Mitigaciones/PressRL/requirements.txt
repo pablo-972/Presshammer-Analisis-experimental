@@ -3,3 +3,4 @@ numpy
 stable-baselines3
 matplotlib
 tabulate
+seaborn

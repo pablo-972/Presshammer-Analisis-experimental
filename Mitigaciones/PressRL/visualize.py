@@ -3,7 +3,7 @@ from stable_baselines3 import PPO
 import matplotlib.pyplot as plt
 from tabulate import tabulate
 import numpy as np
-
+import seaborn as sns
 
 
 # --------- Values --------- #
@@ -201,6 +201,19 @@ def plot_distributions(rewards, actions):
     plt.show()
 
 
+# --------- Plot Confusion Matrix --------- #
+def plot_confusion_matrix(tp, fp, tn, fn):
+    matrix = np.array([[tp, fn], [fp, tn]])
+    labels = ["INSECURE", "SECURE"]
+
+    plt.figure(figsize=(5, 4))
+    sns.heatmap(matrix, annot=True, fmt="d", cmap="Reds", xticklabels=labels, yticklabels=labels)
+    plt.xlabel("Real")
+    plt.ylabel("Prediction")
+    plt.title("Confusion Matrix - PressRL")
+    plt.tight_layout()
+    plt.show()
+
 
 # --------- Evaluate by Chunks --------- #
 def evaluate_by_chunks(actions, latencies, rewards, chunk_size=200):
@@ -239,6 +252,8 @@ if __name__ == "__main__":
 
     plot_cumulative_accuracy(actions, latencies)
     plot_distributions(rewards, actions)
+    plot_confusion_matrix(correct_accesses, wrong_accesses, waits_when_unsafe, waits_when_safe)
+
 
     # Evaluate by chunks
     evaluate_by_chunks(actions, latencies, rewards)
