@@ -23,7 +23,6 @@ struct timespec t1, t2, tglob1, tglob2;
 
 std::vector<unsigned long long> record; 
 
-// Comprobador de filas del estilo con el offset+numvictims que vaya incrementando de 1 en 1 y acceder a la fila, en el momento que de exception fault pues hasta ahí llega y esa fila es crítica --> capturas señal y listo
 
 
 void setupAggr(Mapping &victim, Mapping &aggr1, Mapping &aggr2){
