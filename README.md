@@ -25,13 +25,12 @@ It also includes **adaptive mitigation strategies**, such as **AQRR** (Adaptive 
 
   1. **Mount Huge Superpage**
      
-    ```bash
-    cd Analisis Experimental/cpp/setup
-    sudo ./mount_huge_page.sh
-    ```
-  
-  If it outputs `1`, the mount was successful.
-
+     ```bash
+     cd Analisis Experimental/cpp/setup
+     sudo ./mount_huge_page.sh
+     ```
+     If it outputs `1`, the mount was successful.
+     
 2. **Build the Binary**
     
     ```bash
