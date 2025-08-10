@@ -60,6 +60,7 @@ It also includes **adaptive mitigation strategies**, such as **AQRR** (Adaptive 
 1. Install dependencies:
     
     ```bash
+    cd Mitigaciones/HammerBERT
     pip install -r requirements.txt
     ```
     
@@ -89,6 +90,7 @@ It also includes **adaptive mitigation strategies**, such as **AQRR** (Adaptive 
 1. Install dependencies:
     
     ```bash
+    cd Mitigaciones/PressRL
     pip install -r requirements.txt
     ```
     
