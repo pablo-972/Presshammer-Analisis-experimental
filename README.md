@@ -1,6 +1,7 @@
 # Hardening DRAM Against Presshammer: An Experimental Study with Adaptive and AI-Based Mitigations
 
-This repository contains the full implementation and experimental framework of **Presshammer**, a patterned DRAM disturbance attack that combines **deterministic row activation cadence** with **prolonged row exposure** to challenge classical RowHammer defenses.  
+This repository contains the full implementation and experimental framework of **Presshammer**, a patterned DRAM disturbance attack that combines **deterministic row activation cadence** with **prolonged row exposure** to challenge classical RowHammer defenses. 
+
 It also includes **adaptive mitigation strategies**, such as **AQRR** (Adaptive Quarantine Refreshing Row), and **AI-driven countermeasures**: **HammerBERT** (semantic-level hammer-prone code detection) and **PressRL** (reinforcement learning–based access pattern optimization).
 
 ## Features
