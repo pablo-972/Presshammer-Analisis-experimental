@@ -27,7 +27,7 @@ It also includes **adaptive mitigation strategies**, such as **AQRR** (Adaptive 
   1. **Mount Huge Superpage**
      
      ```bash
-     cd Analisis Experimental/cpp/setup
+     cd "Experimental Analysis/cpp/setup"
      sudo ./mount_huge_page.sh
      ```
      If it outputs `1`, the mount was successful.
@@ -35,20 +35,19 @@ It also includes **adaptive mitigation strategies**, such as **AQRR** (Adaptive 
 2. **Build the Binary**
     
     ```bash
-    cd Analisis Experimental/cpp
+    cd "Experimental Analysis/cpp"
     make
     ```
     
 3. **Run the Experiment**
     
     ```bash
-    sudo ./analisis_experimental [OPTIONS]
+    sudo ./experimental_analysis [OPTIONS]
     ```
     
     **Options:**
     
     - `-v` → Measures access time (nanoseconds and CPU cycles) for two random DRAM rows.
-        
     - `-n <num_rows>` → Launches the attack against the specified number of rows starting from a fixed offset.
         
 
@@ -61,7 +60,7 @@ It also includes **adaptive mitigation strategies**, such as **AQRR** (Adaptive 
 1. Install dependencies:
     
     ```bash
-    cd Mitigaciones/HammerBERT
+    cd Mitigations/HammerBERT
     pip install -r requirements.txt
     ```
     
@@ -91,7 +90,7 @@ It also includes **adaptive mitigation strategies**, such as **AQRR** (Adaptive 
 1. Install dependencies:
     
     ```bash
-    cd Mitigaciones/PressRL
+    cd Mitigations/PressRL
     pip install -r requirements.txt
     ```
     

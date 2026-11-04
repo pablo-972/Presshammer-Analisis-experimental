@@ -3,17 +3,14 @@ CFLAGS := -std=c++11 -g -O3
 LFLAGS :=
 LIBS :=
 
-
-MAINSOURCES := main.cpp Mapping.cpp presshammer.cpp taggon.cpp
+MAINSOURCES := main.cpp Mapping.cpp permissions.cpp content.cpp elf_header.cpp presshammer.cpp utils.cpp
 MAINOBJS := $(MAINSOURCES:.cpp=.o)
 
-
 TARGET := main
-
 all: $(TARGET)
 
 $(TARGET): $(MAINOBJS)
-	$(CXX) $(CFLAGS) -o analisis_experimental $(MAINOBJS) $(LFLAGS) $(LIBS)
+	$(CXX) $(CFLAGS) -o research $(MAINOBJS) $(LFLAGS) $(LIBS)
 
 %.o: %.cpp
 	$(CXX) $(CFLAGS) -c $< -o $@
